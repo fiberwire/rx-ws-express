@@ -1,15 +1,15 @@
+import { Subject, Observable } from 'rxjs/Rx';
 import { Event } from './event';
 import { Application, Request, Response } from 'express';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
-import { Subject, Observable } from 'rxjs';
 
 export class Server {
 
     server: Application;
     requests: Subject<Event>;
 
-    constructor(public host: string = '127.0.0.1', public port: number = process.env.PORT) {
+    constructor(public host: string = process.env.IP || '127.0.0.1', public port: number = process.env.PORT || '3000') {
         this.requests = new Subject<Event>();
         this.server = express();
         this.server.use(bodyParser.urlencoded({ 'extended': true }));
