@@ -1,5 +1,5 @@
 
-import { Subject } from "rxjs/Rx";
+import { Subject } from "rx";
 import { Server } from 'ws';
 
 export class SocketServer {
