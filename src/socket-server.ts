@@ -1,15 +1,37 @@
+import { Subject, Observable } from 'rx';
+import * as ws from 'ws';
+import { Server } from './server';
 
-import { Subject } from "rx";
-import { Server } from 'ws';
+export class SocketServer<T> extends Server {
 
-export class SocketServer {
+    private i: Subject<T>;
+    private o: Subject<T>;
 
-    public i: Subject<string>;
-    public o: Subject<string>;
-    
-    public server: Server
+    public sockets: ws.Server
 
-    constructor(public port: number) {
-        this.server = new Server({port});
+    constructor(
+        public host: string = process.env.HOST || "localhost",
+        public port: number = process.env.PORT || 3000,
+        public socketPort: number = port + 1) {
+        super(host, port);
+
+        this.i = new sub
+
+        this.sockets = new ws.Server({ host, port: socketPort });
+
+        this.sockets.on('open', () => {
+            console.log(`Socket server started on ${socketPort}`)
+        })
+
+        this.sockets.on('connection', (client, request) => {
+            console.log(`client connected: @${client.url}: ${request.method}: ${request.url}`)
+            client.on('message', (data: string) => {
+                this.i.onNext(JSON.parse(data));
+            })
+        })
+    }
+
+    get messages(): Observable<T> {
+        return this.i;
     }
 }

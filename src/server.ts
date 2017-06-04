@@ -16,22 +16,22 @@ export class Server {
         this.server.use(bodyParser.json());
 
         this.server.get('*', (req: Request, res: Response) => {
-            this.log({ req, res })
+            this.log({ req, res });
             this.requests.onNext({ req, res });
         })
 
         this.server.post('*', (req: Request, res: Response) => {
-            this.log({ req, res })
+            this.log({ req, res });
             this.requests.onNext({ req, res });
         })
 
         this.server.delete('*', (req: Request, res: Response) => {
-            this.log({ req, res })
+            this.log({ req, res });
             this.requests.onNext({ req, res });
         })
 
         this.server.put('*', (req: Request, res: Response) => {
-            this.log({ req, res })
+            this.log({ req, res });
             this.requests.onNext({ req, res });
         })
 

@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "app": "ts-node ./src/examples/app.ts",
+    "socket": "ts-node ./src/examples/socket.ts",
     "tsc": "./node_modules/.bin/tsc --watch"
   },
   "keywords": [
