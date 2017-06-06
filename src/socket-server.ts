@@ -39,6 +39,10 @@ export class SocketServer<T, U> {
         return this.o;
     }
 
+    public setState(state: U){
+        this._state = state;
+    }
+
     public broadcast(state: U) {
         this.server.clients.forEach(client => {
             client.send(JSON.stringify(state));
