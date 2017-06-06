@@ -1,13 +1,14 @@
+import { RequestResponse } from './request-response';
 import { Message } from './message';
 import { Observable } from 'rx';
-import { RequestResponse } from './../out/src/request-response.d';
 import { SocketServer } from './socket-server';
 import { Server } from './server';
 
 export class SocketExpressServer<T, U> {
 
-    express: Server
-    socket: SocketServer<T, U>
+    private express: Server
+    private socket: SocketServer<T, U>
+
     constructor(
         initialState: U,
         apply: (data: T, state: U) => U,
@@ -35,4 +36,25 @@ export class SocketExpressServer<T, U> {
     public get state(): Observable<U> {
         return this.socket.state;
     }
+
+    public broadcast(state: U) {
+        this.socket.broadcast(state);
+    }
+
+    public get(route: string): Observable<RequestResponse> {
+        return this.express.get(route);
+    }
+
+    public post(route: string): Observable<RequestResponse> {
+        return this.express.post(route);
+    }
+
+    public put(route: string): Observable<RequestResponse> {
+        return this.express.put(route);
+    }
+
+    public delete(route: string): Observable<RequestResponse> {
+        return this.express.delete(route);
+    }
+
 }
