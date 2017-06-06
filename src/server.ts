@@ -4,24 +4,24 @@ import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import { Subject, Observable } from "rx";
 import { parse } from 'url';
-
+import * as http from 'http';
 export class Server {
 
-    server: Application;
+    server: http.Server;
     requests: Subject<RequestResponse>;
 
     constructor(public host: string = process.env.IP || '127.0.0.1', public port: number = process.env.PORT || '3000') {
         this.requests = new Subject<RequestResponse>();
-        this.server = express();
-        this.server.use(bodyParser.urlencoded({ 'extended': true }));
-        this.server.use(bodyParser.json());
+        let app = express();
+        app.use(bodyParser.urlencoded({ 'extended': true }));
+        app.use(bodyParser.json());
 
-        this.server.use((req: Request, res: Response) => {
+        app.use((req: Request, res: Response) => {
             this.log({ req, res });
             this.requests.onNext({ req, res });
         })
 
-        this.server.listen(port);
+        this.server = app.listen(port);
         console.log(`(Server): Listening on port ${port}...`);
     }
 
