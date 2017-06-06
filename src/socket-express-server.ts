@@ -13,15 +13,14 @@ export class SocketExpressServer<T, U> {
         initialState: U,
         apply: (data: T, state: U) => U,
         public host: string = process.env.HOST || "localhost",
-        public httpPort: number = process.env.PORT || 3001,
-        public socketPort: number = httpPort + 1,
+        public port: number = process.env.PORT || 3000
     ) {
-        this.express = new Server(host, httpPort);
+        this.express = new Server(host, port);
         this.socket = new SocketServer<T, U>(
             initialState,
             apply,
-            host,
-            socketPort
+            port,
+            this.express.server,
         );
     }
 
