@@ -35,11 +35,14 @@ export class SocketServer<T, U> {
         return this.i;
     }
 
-    public get state(): Observable<U> {
+    public get currentState(): Observable<U> {
         return this.o;
     }
 
-    public setState(state: U){
+    public get state(): U {
+        return this._state;
+    }
+    public set state(state: U){
         this._state = state;
     }
 
@@ -50,7 +53,7 @@ export class SocketServer<T, U> {
     }
 
     private broadcastState(): IDisposable {
-        return this.state
+        return this.currentState
             .do(s => console.log(`(Server): broadcasting state`))
             .subscribe(state => this.broadcast(state));
     }
