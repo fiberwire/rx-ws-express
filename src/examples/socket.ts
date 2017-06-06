@@ -45,7 +45,7 @@ let clientState: State = {
 }
 
 //client
-let socket = new ws(`http://${server.host}:${server.port}`)
+let socket = new ws(`http://localhost:${server.port}`)
     .on('open', () => {
         console.log(`(Client): connected to server`);
 
