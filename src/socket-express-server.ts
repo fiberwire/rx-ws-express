@@ -33,10 +33,6 @@ export class SocketExpressServer<T, U> {
         return this.socket.messages;
     }
 
-    public get state(): Observable<U> {
-        return this.socket.currentState;
-    }
-
     public broadcast(state: U) {
         this.socket.broadcast(state);
     }
