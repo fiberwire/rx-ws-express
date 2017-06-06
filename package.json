@@ -1,5 +1,5 @@
 {
-  "name": "rxpress",
+  "name": "rx-ws-express",
   "version": "1.0.1",
   "description": "an reactive wrapper for express",
   "main": "index.js",
