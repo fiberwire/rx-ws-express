@@ -1,13 +1,16 @@
 {
-  "name": "rxpress",
+  "name": "rx-ws-express",
   "version": "1.0.0",
-  "description": "an reactive wrapper for express",
-  "main": "index.js",
+  "description": "a reactive wrapper for express",
+  "main": "out/src/index.js",
+  "typings": "out/src/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "app": "ts-node ./src/examples/app.ts",
     "socket": "ts-node ./src/examples/socket.ts",
-    "tsc": "./node_modules/.bin/tsc --watch"
+    "tsc": "./node_modules/.bin/tsc --watch",
+    "prepublish": "npm run compile",
+    "compile": "rimraf out && tsc"
   },
   "keywords": [
     "rx",
@@ -19,21 +22,24 @@
     "request"
   ],
   "author": "Andrew Ramos",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fiberwire/rxpress.git"
+  },
   "license": "ISC",
   "devDependencies": {
     "@types/body-parser": "^1.16.3",
     "@types/express": "^4.0.35",
-    "@types/lodash": "^4.14.65",
     "@types/node": "^7.0.27",
     "@types/rx": "^4.1.1",
     "@types/ws": "^3.0.0",
+    "rimraf": "^2.6.1",
     "ts-node": "^3.0.4",
     "typescript": "^2.3.4"
   },
   "dependencies": {
     "body-parser": "^1.17.2",
     "express": "^4.15.3",
-    "lodash": "^4.17.4",
     "rx": "^4.1.0",
     "ws": "^3.0.0"
   }
