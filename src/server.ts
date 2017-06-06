@@ -3,6 +3,7 @@ import { Application, Request, Response } from 'express';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import { Subject, Observable } from "rx";
+import { parse } from 'url';
 
 export class Server {
 
@@ -27,28 +28,28 @@ export class Server {
     public get(route: string): Observable<RequestResponse> {
         return this.requests
             .filter(e => e.req.method == 'GET')
-            .filter(e => e.req.url == route)
+            .filter(e => parse(e.req.url).pathname == route)
     }
 
     public post(route: string): Observable<RequestResponse> {
         return this.requests
             .filter(e => e.req.method == 'POST')
-            .filter(e => e.req.url == route)
+            .filter(e => parse(e.req.url).pathname == route)
     }
 
     public put(route: string): Observable<RequestResponse> {
         return this.requests
             .filter(e => e.req.method == 'PUT')
-            .filter(e => e.req.url == route)
+            .filter(e => parse(e.req.url).pathname == route)
     }
 
     public delete(route: string): Observable<RequestResponse> {
         return this.requests
             .filter(e => e.req.method == 'DELETE')
-            .filter(e => e.req.url == route)
+            .filter(e => parse(e.req.url).pathname == route)
     }
 
     private log(e: RequestResponse): void {
-        console.log(`Received request ${e.req.method}: ${e.req.url}`);
+        console.log(`Received request ${e.req.method}: ${e.req.originalUrl}`);
     }
 }
