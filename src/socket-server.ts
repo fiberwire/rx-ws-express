@@ -80,6 +80,11 @@ export class SocketServer<T, U> {
     private listen(i: Subject<Message<T>>) {
         this.server.on('connection', (client, request) => {
             console.log(`(Server): client connected`)
+
+            //send client the server state on connection
+            client.send(JSON.stringify(this._state));
+
+            //parse and add data to i
             client.on('message', (data: string) => {
                 console.log(`(Server): received data: ${data}`);
                 i.onNext({ client, data: JSON.parse(data) });
