@@ -1,21 +1,22 @@
+import * as express from 'express';
 import { Message } from './message';
 import { Subject, Observable, Scheduler, IDisposable, BehaviorSubject } from 'rx';
 import * as WebSocket from 'ws';
 import { Server } from './server';
+import * as http from 'http';
 
 export class SocketServer<T, U> {
 
     private i: Subject<Message<T>>;
     private o: BehaviorSubject<U>;
-
-    public server: WebSocket.Server
+    public wss: WebSocket.Server
     private _state: U
 
     constructor(
         public initialState: U,
         public apply: (data: T, state: U) => U,
-        public host: string = process.env.HOST || "localhost",
-        public port: number = process.env.PORT || 3001,
+        public port: number = process.env.PORT || 3000,
+        public server: http.Server = express().listen(port),
         public fps: number = 1,
     ) {
 
@@ -24,7 +25,7 @@ export class SocketServer<T, U> {
         this.i = new Subject<Message<T>>();
         this.o = new BehaviorSubject<U>(this._state);
 
-        this.initialize(host, port);
+        this.initialize(port);
         this.listen(this.i);
         this.applyChanges();
         this.syncState(fps);
@@ -47,7 +48,7 @@ export class SocketServer<T, U> {
     }
 
     public broadcast(state: U) {
-        this.server.clients.forEach(client => {
+        this.wss.clients.forEach(client => {
             client.send(JSON.stringify(state));
         })
     }
@@ -75,17 +76,17 @@ export class SocketServer<T, U> {
             .subscribe(state => this._state = state);
     }
 
-    private initialize(host: string, port: number) {
+    private initialize(port: number) {
         console.log(`(Server): starting socket server`)
-        this.server = new WebSocket.Server({ host, port });
+        this.wss = new WebSocket.Server({ server: this.server });
 
-        this.server.on('open', () => {
+        this.wss.on('open', () => {
             console.log(`(Server): Socket server started on ${port}`)
         })
     }
 
     private listen(i: Subject<Message<T>>) {
-        this.server.on('connection', (client, request) => {
+        this.wss.on('connection', (client, request) => {
             console.log(`(Server): client connected`)
 
             //send client the server state on connection
