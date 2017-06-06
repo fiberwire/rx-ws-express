@@ -1,37 +1,93 @@
-import { Subject, Observable } from 'rx';
-import * as ws from 'ws';
+import { Message } from './message';
+import { Subject, Observable, Scheduler, IDisposable, BehaviorSubject } from 'rx';
+import * as WebSocket from 'ws';
 import { Server } from './server';
 
-export class SocketServer<T> extends Server {
+export class SocketServer<T, U> {
 
-    private i: Subject<T>;
-    private o: Subject<T>;
+    private i: Subject<Message<T>>;
+    private o: BehaviorSubject<U>;
 
-    public sockets: ws.Server
+    public server: WebSocket.Server
+    private _state: U
 
     constructor(
+        public initialState: U,
+        public apply: (data: T, state: U) => U,
         public host: string = process.env.HOST || "localhost",
-        public port: number = process.env.PORT || 3000,
-        public socketPort: number = port + 1) {
-        super(host, port);
+        public port: number = process.env.PORT || 3001,
+        public fps: number = 1,
+    ) {
 
-        this.i = new sub
+        this._state = initialState;
 
-        this.sockets = new ws.Server({ host, port: socketPort });
+        this.i = new Subject<Message<T>>();
+        this.o = new BehaviorSubject<U>(this._state);
 
-        this.sockets.on('open', () => {
-            console.log(`Socket server started on ${socketPort}`)
-        })
+        this.initialize(host, port);
+        this.listen(this.i);
+        this.applyChanges();
+        this.syncState(fps);
+        this.broadcastState();
+    }
 
-        this.sockets.on('connection', (client, request) => {
-            console.log(`client connected: @${client.url}: ${request.method}: ${request.url}`)
-            client.on('message', (data: string) => {
-                this.i.onNext(JSON.parse(data));
-            })
+    public get messages(): Observable<Message<T>> {
+        return this.i;
+    }
+
+    public get state(): Observable<U> {
+        return this.o;
+    }
+
+    public broadcast(state: U) {
+        this.server.clients.forEach(client => {
+            client.send(JSON.stringify(state));
         })
     }
 
-    get messages(): Observable<T> {
-        return this.i;
+    private broadcastState(): IDisposable {
+        return this.state
+            .do(s => console.log(`(Server): broadcasting state`))
+            .subscribe(state => this.broadcast(state));
+    }
+
+    private syncState(fps: number): IDisposable {
+        return Observable.interval(1000 / fps)
+            .do(t => {
+                this.o.onNext(this._state);
+                console.log(`(Server): synced state`);
+            })
+            .subscribe();
+    }
+
+    private applyChanges(): IDisposable {
+        return this.messages
+            .do(msg => console.log(`(Server): applying changes`))
+            .map(msg => msg.data)
+            .map(data => this.apply(data, this._state))
+            .subscribe(state => this._state = state);
+    }
+
+    private initialize(host: string, port: number) {
+        console.log(`(Server): starting socket server`)
+        this.server = new WebSocket.Server({ host, port });
+
+        this.server.on('open', () => {
+            console.log(`(Server): Socket server started on ${port}`)
+        })
+    }
+
+    private listen(i: Subject<Message<T>>) {
+        this.server.on('connection', (client, request) => {
+            console.log(`(Server): client connected`)
+            client.on('message', (data: string) => {
+                console.log(`(Server): received data: ${data}`);
+                i.onNext({ client, data: JSON.parse(data) });
+            })
+
+            client.on('close', (code, message) => {
+                console.log(`(Server): client disconnected: code: ${code}, message: ${message}`);
+            })
+        })
     }
 }
