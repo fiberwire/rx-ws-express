@@ -1,6 +1,6 @@
 {
   "name": "rx-ws-express",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "an reactive wrapper for express",
   "main": "out/src/index.js",
   "typings": "out/src/index.d.ts",
